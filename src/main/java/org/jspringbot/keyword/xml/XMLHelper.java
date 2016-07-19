@@ -93,10 +93,11 @@ public class XMLHelper {
     }
 
     public static String removeXmlStringNamespaceAndPreamble(String xmlString) {
-        return xmlString.replaceAll("(<\\?[^<]*\\?>)?", ""). /* remove preamble */
-                replaceAll("xmlns.*?(\"|\').*?(\"|\')", "") /* remove xmlns declaration */
-                .replaceAll("(<)(\\w+:)(.*?>)", "$1$3") /* remove opening tag prefix */
-                .replaceAll("(</)(\\w+:)(.*?>)", "$1$3"); /* remove closing tags prefix */
+        return xmlString.replaceAll("(<\\?[^<]*\\?>)?", "").    /* remove preamble */
+                replaceAll("xmlns.*?(\"|\').*?(\"|\')", "")     /* remove xmlns declaration */
+                .replaceAll("(<)(\\w+:)(.*?>)", "$1$3")         /* remove opening tag prefix */
+                .replaceAll("SOAP-ENV:", "")                    /* remove SOAP-ENV: prefix */
+                .replaceAll("(</)(\\w+:)(.*?>)", "$1$3");       /* remove closing tags prefix */
     }
 
     public void setDocument(Document document) {
