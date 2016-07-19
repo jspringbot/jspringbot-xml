@@ -17,9 +17,14 @@ Configure the following to use jspringbot-xml.
 
 | <import resource="classpath:spring/spring-xml.xml"/>
 
-3. If you are going to use json expression language support, follow {{jspringbot-doc:expression}} configuration.
+3. A {{jspringbot.properties}} file should exist in resources. See the possible properties below.
 
-4. Add {{JSpringBotGlobal}} library in the in the test suite settings.
+| *Key* | *Default Value* | *Description* |
+| {{xml.remove.namespace}} | false | True to remove namespace, otherwise false. |
+
+4. If you are going to use json expression language support, follow {{jspringbot-doc:expression}} configuration.
+
+5. Add {{JSpringBotGlobal}} library in the in the test suite settings.
 
 | *** Settings *** |
 | Library | JSpringBotGlobal |
