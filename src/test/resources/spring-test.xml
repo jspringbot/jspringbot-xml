@@ -28,6 +28,10 @@
   <import resource="classpath:spring/spring-expression.xml"/>
   <import resource="classpath:spring/spring-xml.xml"/>
 
+  <bean name="xmlHelper" class="org.jspringbot.keyword.xml.XMLHelper">
+    <property name="removeNamespace" value="${xml.remove.namespace:false}"/>
+  </bean>
+
   <bean name="sampleResources" class="org.jspringbot.keyword.xml.SampleResources">
     <property name="sampleXML" value="classpath:sample.xml"/>
     <property name="sample2XML" value="classpath:sample2.xml"/>
