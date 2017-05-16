@@ -19,6 +19,7 @@
 package org.jspringbot.keyword.xml;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.regexp.RE;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;

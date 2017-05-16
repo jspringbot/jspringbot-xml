@@ -44,7 +44,7 @@ public class GetXMLXPathElements extends AbstractXMLKeyword{
             }
 
             return elements;
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(String.format("Error while getting element for xpath expression %s'.", params[0]));
         }
     }

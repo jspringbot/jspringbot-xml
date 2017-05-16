@@ -35,7 +35,7 @@ public class GetXMLXPathMatchCount extends AbstractXMLKeyword{
     public Object execute(Object[] params) {
         try {
             return helper.getXpathMatchCount(String.valueOf(params[0]));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
              throw new IllegalStateException(e.getMessage(), e);
         }
     }

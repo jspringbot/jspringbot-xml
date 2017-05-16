@@ -35,7 +35,7 @@ public class XMLXPathTextContentShouldBeEqual extends AbstractXMLKeyword{
     public Object execute(Object[] params) {
         try {
             helper.xpathTextContentShouldBeEqual(String.valueOf(params[0]), String.valueOf(params[1]));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
 

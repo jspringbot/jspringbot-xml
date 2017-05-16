@@ -35,7 +35,7 @@ public class XMLXPathShouldMatchXTimes extends AbstractXMLKeyword{
     public Object execute(Object[] params) {
         try {
             helper.xpathShouldMatchXTimes(String.valueOf(params[0]), Integer.parseInt(String.valueOf(params[1])));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
              throw new IllegalStateException(e.getMessage(), e);
         }
 

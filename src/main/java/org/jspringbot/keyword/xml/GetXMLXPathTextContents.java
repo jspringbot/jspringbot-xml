@@ -22,6 +22,7 @@ import org.jspringbot.KeywordInfo;
 import org.springframework.stereotype.Component;
 
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
 
 @Component
 @KeywordInfo(
@@ -32,7 +33,7 @@ import javax.xml.transform.TransformerException;
 public class GetXMLXPathTextContents extends AbstractXMLKeyword{
 
     @Override
-    public Object execute(Object[] params) {
+    public Object execute(Object[] params) throws XPathExpressionException {
         try {
             return helper.getXpathTextContents(String.valueOf(params[0]));
         } catch (TransformerException e) {

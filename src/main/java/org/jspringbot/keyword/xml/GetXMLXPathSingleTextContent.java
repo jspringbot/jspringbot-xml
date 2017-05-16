@@ -35,7 +35,7 @@ public class GetXMLXPathSingleTextContent extends AbstractXMLKeyword{
     public Object execute(Object[] params) {
         try {
             return helper.getXPathSingleTextContent(String.valueOf(params[0]));
-        } catch (TransformerException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(String.format("Error while getting text content for xpath expression %s'.", params[0]));
         }
     }

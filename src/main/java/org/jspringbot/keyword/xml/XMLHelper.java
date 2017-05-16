@@ -21,8 +21,6 @@ package org.jspringbot.keyword.xml;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xpath.XPathAPI;
 import org.jspringbot.syntax.HighlightRobotLogger;
 import org.jspringbot.syntax.HighlighterUtils;
 import org.springframework.core.io.Resource;
@@ -33,7 +31,14 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -47,26 +52,22 @@ public class XMLHelper {
 
     protected Document document;
 
-    private boolean removeNamespace = false;
+    private XPath xPath;
+
+    public XMLHelper() {
+        xPath = XPathFactory.newInstance().newXPath();
+    }
 
     public void reset() {
         xmlString = null;
         document = null;
     }
 
-    public boolean isRemoveNamespace() {
-        return removeNamespace;
-    }
-
-    public void setRemoveNamespace(boolean removeNamespace) {
-        this.removeNamespace = removeNamespace;
-    }
-
     public void validate() {
         Validate.notNull(xmlString, "xmlString was not set.");
     }
 
-    public void setXmlString(String xmlString) throws IOException, SAXException {
+    public void setXmlString(String xmlString) throws IOException, SAXException, ParserConfigurationException {
         this.xmlString = xmlString;
 
         if(StringUtils.startsWith(xmlString, "file:") || StringUtils.startsWith(xmlString, "classpath:")) {
@@ -77,27 +78,15 @@ public class XMLHelper {
             xmlString = new String(IOUtils.toCharArray(resource.getInputStream()));
         }
 
-        if(removeNamespace) {
-            xmlString = removeXmlStringNamespaceAndPreamble(xmlString);
-        }
-
-        DOMParser parser = new DOMParser();
-        parser.parse(new InputSource(new StringReader(xmlString)));
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
 
         LOG.createAppender()
             .appendBold("XML String:")
             .appendXML(XMLFormatter.prettyPrint(xmlString))
             .log();
 
-        this.document = parser.getDocument();
-    }
-
-    public static String removeXmlStringNamespaceAndPreamble(String xmlString) {
-        return xmlString.replaceAll("(<\\?[^<]*\\?>)?", "").    /* remove preamble */
-                replaceAll("xmlns.*?(\"|\').*?(\"|\')", "")     /* remove xmlns declaration */
-                .replaceAll("(<)(\\w+:)(.*?>)", "$1$3")         /* remove opening tag prefix */
-                .replaceAll("SOAP-ENV:", "")                    /* remove SOAP-ENV: prefix */
-                .replaceAll("(</)(\\w+:)(.*?>)", "$1$3");       /* remove closing tags prefix */
+        this.document = db.parse(new InputSource(new StringReader(xmlString)));
     }
 
     public void setDocument(Document document) {
@@ -111,7 +100,7 @@ public class XMLHelper {
     /**
      * XPath Text Content Should be Equal
      */
-    public void xpathTextContentShouldBeEqual (String xpathExpression, String expectedValue) throws TransformerException {
+    public void xpathTextContentShouldBeEqual (String xpathExpression, String expectedValue) throws TransformerException, XPathExpressionException {
         String value = getXPathSingleTextContent(xpathExpression);
 
         LOG.createAppender()
@@ -126,7 +115,7 @@ public class XMLHelper {
         }
     }
 
-    public int getXpathMatchCount(String xpathExpression) throws TransformerException {
+    public int getXpathMatchCount(String xpathExpression) throws TransformerException, XPathExpressionException {
         int nodeLength = getNodeList(xpathExpression).getLength();
 
         LOG.createAppender()
@@ -138,7 +127,7 @@ public class XMLHelper {
         return nodeLength;
     }
 
-    public void xpathShouldMatchXTimes (String xpathExpression, int numberOfTimes) throws TransformerException {
+    public void xpathShouldMatchXTimes (String xpathExpression, int numberOfTimes) throws TransformerException, XPathExpressionException {
         int nodeLength = getNodeList(xpathExpression).getLength();
 
         LOG.createAppender()
@@ -156,10 +145,10 @@ public class XMLHelper {
     /**
      * Get Xpath Single Text Contents
      */
-    public String getXPathSingleTextContent(String xpathExpression) throws TransformerException {
+    public String getXPathSingleTextContent(String xpathExpression) throws TransformerException, XPathExpressionException {
         validate();
 
-        Element element = (Element) XPathAPI.selectSingleNode(document, xpathExpression);
+        Element element = (Element) xPath.evaluate(xpathExpression, document, XPathConstants.NODE);
 
         if (element == null) {
             throw new IllegalArgumentException(String.format("Xpath Expression '%s' not found.", xpathExpression));
@@ -177,7 +166,7 @@ public class XMLHelper {
     /**
      * Get Xpath Text Contents
      */
-    public List<String> getXpathTextContents(String xpathExpression) throws TransformerException {
+    public List<String> getXpathTextContents(String xpathExpression) throws TransformerException, XPathExpressionException {
         NodeList nodeList = getNodeList(xpathExpression);
         if (nodeList.getLength() == 0) {
             return Collections.emptyList();
@@ -201,7 +190,7 @@ public class XMLHelper {
     /**
      * Get Xpath Text Contents
      */
-    public List<Element> getXpathElements(String xpathExpression) throws TransformerException {
+    public List<Element> getXpathElements(String xpathExpression) throws TransformerException, XPathExpressionException {
         NodeList nodeList = getNodeList(xpathExpression);
         if (nodeList.getLength() == 0) {
             return Collections.emptyList();
@@ -223,7 +212,7 @@ public class XMLHelper {
     /**
      * Get Xpath Text Contents
      */
-    public List<Element> getXpathElements(Element base, String xpathExpression) throws TransformerException, IOException, SAXException {
+    public List<Element> getXpathElements(Element base, String xpathExpression) throws TransformerException, IOException, SAXException, XPathExpressionException, ParserConfigurationException {
         NodeList nodeList = getNodeList(base, xpathExpression);
         if (nodeList.getLength() == 0) {
             return Collections.emptyList();
@@ -242,7 +231,7 @@ public class XMLHelper {
         return list;
     }
 
-    private NodeList getNodeList(Element base, String xpathExpression) throws TransformerException, IOException, SAXException {
+    private NodeList getNodeList(Element base, String xpathExpression) throws TransformerException, IOException, SAXException, XPathExpressionException, ParserConfigurationException {
         validate();
 
         String baseString = XMLFormatter.prettyPrint(base);
@@ -252,10 +241,11 @@ public class XMLHelper {
                 .appendXML(baseString)
                 .log();
 
-        DOMParser parser = new DOMParser();
-        parser.parse(new InputSource(new StringReader(baseString)));
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document document = db.parse(new InputSource(new StringReader(baseString)));
 
-        NodeList nodeList = XPathAPI.selectNodeList(parser.getDocument(), xpathExpression);
+        NodeList nodeList = (NodeList) xPath.evaluate(xpathExpression, document, XPathConstants.NODESET);
         if (nodeList == null) {
             throw new IllegalArgumentException(String.format("Xpath Expression '%s' not found.", xpathExpression));
         }
@@ -269,10 +259,11 @@ public class XMLHelper {
         return nodeList;
     }
 
-    private NodeList getNodeList(String xpathExpression) throws TransformerException {
+    private NodeList getNodeList(String xpathExpression) throws TransformerException, XPathExpressionException {
         validate();
 
-        NodeList nodeList = XPathAPI.selectNodeList(document, xpathExpression);
+        NodeList nodeList = (NodeList) xPath.evaluate(xpathExpression, document, XPathConstants.NODESET);
+
         if (nodeList == null) {
             throw new IllegalArgumentException(String.format("Xpath Expression '%s' not found.", xpathExpression));
         }
@@ -285,6 +276,4 @@ public class XMLHelper {
 
         return nodeList;
     }
-
-
 }
