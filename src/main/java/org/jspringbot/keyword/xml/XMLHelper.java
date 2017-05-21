@@ -54,8 +54,14 @@ public class XMLHelper {
 
     private XPath xPath;
 
+    private XPathFactory xPathFactory;
+
     public XMLHelper() {
-        xPath = XPathFactory.newInstance().newXPath();
+        System.setProperty(XPathFactory.class.getName(), "org.apache.xpath.jaxp.XPathFactoryImpl");
+        System.setProperty(DocumentBuilderFactory.class.getName(), "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+
+        xPathFactory = XPathFactory.newInstance();
+        xPath = xPathFactory.newXPath();
     }
 
     public void reset() {
@@ -82,6 +88,8 @@ public class XMLHelper {
         DocumentBuilder db = dbf.newDocumentBuilder();
 
         LOG.createAppender()
+                .appendProperty("DocumentBuilderFactory class", dbf.getClass().getName())
+                .appendProperty("XPathFactory class", xPathFactory.getClass().getName())
             .appendBold("XML String:")
             .appendXML(XMLFormatter.prettyPrint(xmlString))
             .log();

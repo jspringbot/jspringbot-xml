@@ -18,8 +18,17 @@ import java.util.List;
 
 public class XMLUtils {
     public static final HighlightRobotLogger LOG = HighlightRobotLogger.getLogger(ExpressionHelper.class);
+    private static XMLHelper helper;
+
+    static void setHelper(XMLHelper helper) {
+        XMLUtils.helper = helper;
+    }
 
     private static XMLHelper getHelper() {
+        if(XMLUtils.helper != null) {
+            return helper;
+        }
+
         return ApplicationContextHolder.get().getBean(XMLHelper.class);
     }
 

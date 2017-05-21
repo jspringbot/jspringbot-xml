@@ -20,9 +20,12 @@ package org.jspringbot.keyword.xml;
 
 import com.jamesmurty.utils.XMLBuilder;
 import org.apache.commons.collections.CollectionUtils;
+import org.jspringbot.spring.ApplicationContextHolder;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.w3c.dom.Element;
@@ -47,6 +50,30 @@ public class XMLHelperTest {
 
     @Autowired
     private GetXMLXPathElementTextContent getXPathElementTextContentKeyword;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Before
+    public void setUp() throws Exception {
+        XMLUtils.setHelper(helper);
+    }
+
+    @Test
+    public void testGetXpathElements3() throws Exception {
+        helper.setXmlString(resources.getSample3XMLString());
+
+        List<Element> els = helper.getXpathElements("//diffgram/dt/Table[1]/prizeName");
+
+        for(Element el : els) {
+            String compName = el.getTextContent();
+            System.out.println("compname= " + compName);
+        }
+
+        String textContents = XMLUtils.text("//diffgram/dt/Table[1]/prizeName");
+        System.out.println("Text= " + textContents);
+
+    }
 
     @Test
     public void testGetXpathElements2() throws Exception {
