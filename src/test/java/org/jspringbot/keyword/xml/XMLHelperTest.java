@@ -60,22 +60,6 @@ public class XMLHelperTest {
     }
 
     @Test
-    public void testGetXpathElements3() throws Exception {
-        helper.setXmlString(resources.getSample3XMLString());
-
-        List<Element> els = helper.getXpathElements("//diffgram/dt/Table[1]/prizeName");
-
-        for(Element el : els) {
-            String compName = el.getTextContent();
-            System.out.println("compname= " + compName);
-        }
-
-        String textContents = XMLUtils.text("//diffgram/dt/Table[1]/prizeName");
-        System.out.println("Text= " + textContents);
-
-    }
-
-    @Test
     public void testGetXpathElements2() throws Exception {
         helper.setXmlString(resources.getSample2XMLString());
 
